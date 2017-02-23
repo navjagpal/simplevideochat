@@ -18,4 +18,8 @@ by just implementing the sample channel API and using your own channel when crea
 objects. 
 
 # Demo Web App
-I've included a web app built using Polymer. 
+I've included a web app built using Polymer. You can check out the live demo here: https://simplevideochatdemo.firebaseapp.com/
+
+Right now, everyone ends up in the same room! The app supports multiple peers, so you might meet some strangers this way.
+I will, eventually (maybe?), update the demo so that it puts people in different rooms and require you to share a URL
+to invite people to your room.
