@@ -1,0 +1,143 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-database-behavior.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<script src="vc.js"></script>
+
+<dom-module id="my-app">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+
+        display: block;
+      }
+
+      app-header {
+        color: #fff;
+        background-color: var(--app-primary-color);
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+      }
+
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+        line-height: 40px;
+      }
+
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
+
+      #selfView, #remoteVideos {
+        float: left;
+        display: inline;
+      }
+    </style>
+
+    <!-- Main content -->
+    <app-header-layout has-scrolling-region>
+
+      <app-header condenses reveals>
+        <app-toolbar>
+          <div main-title>Simple Video Chat</div>
+        </app-toolbar>
+      </app-header>
+
+    </app-header-layout>
+
+    <div id="videos">
+      <video id="selfView"></video>
+      <div id="remoteVideos"></div>
+    </div>
+
+		<firebase-app
+      id="firebase"
+			auth-domain="simplevideochatdemo.firebaseapp.com"
+			database-url="https://simplevideochatdemo.firebaseio.com"
+			api-key="AIzaSyCknmLcgIDjJ6B0H-d_xCxfDOhiqLtIz94"
+			storage-bucket="simplevideochatdemo.appspot.com"
+			messaging-sender-id="471103801619">
+		</firebase-app>
+
+    <firebase-auth id="auth" autoLogin="true"
+      on-login="handleLogin"
+      user="{{user}}" provider="anonymous" on-error="handleAuthError">
+    </firebase-auth>
+
+    <x-firebase-database id="database"></x-firebase-database>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'my-app',
+      ready: function() {
+        this.remoteVideosMapping = {};
+        this.$.auth.auth.onAuthStateChanged(function(user) {
+          if (user) {
+            this.startVideoChat();
+          } else {
+            this.$.auth.signInAnonymously();
+          }
+        }.bind(this));
+      },
+      startVideoChat: function() {
+        navigator.mediaDevices.getUserMedia({ "audio": true, "video": true }).
+          then(function(stream) {
+            this.$.selfView.srcObject = stream;
+            this.$.selfView.play();
+            var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+              function(c) {
+                var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
+                return v.toString(16);
+              });
+            this.vc = new VideoChat(guid, stream, this.$.database.db);
+            this.vc.onremotestream = function(id, remoteStream) {
+              var video = document.createElement('video');
+              this.remoteVideosMapping[id] = 'remoteVideo' +
+                Object.keys(this.remoteVideosMapping).length;
+              video.id = this.remoteVideosMapping[id];
+              video.srcObject = remoteStream;
+              video.play();
+              this.$.remoteVideos.appendChild(video);
+            }.bind(this);
+            this.vc.onremotestreamremoved = function(id) {
+              var video = this.$$('#' + this.remoteVideosMapping[id]);
+              video.parentNode.removeChild(video);
+            }.bind(this);
+          }.bind(this));
+      }
+    });
+
+    Polymer({
+      is: 'x-firebase-database',
+      behaviors: [
+        Polymer.FirebaseDatabaseBehavior
+      ],
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,20 @@
+{
+  "name": "simplevideochat",
+  "authors": [
+    "Nav Jagpal"
+  ],
+  "dependencies": {
+    "app-layout": "PolymerElements/app-layout#^0.10.0",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.0.0",
+    "iron-localstorage": "PolymerElements/iron-localstorage#^1.0.0",
+    "iron-media-query": "PolymerElements/iron-media-query#^1.0.0",
+    "iron-selector": "PolymerElements/iron-selector#^1.0.0",
+    "polymer": "Polymer/polymer#^1.6.0",
+    "firebase": "^3.6.9",
+    "polymerfire": "firebase/polymerfire#^0.10.3"
+  },
+  "devDependencies": {
+    "web-component-tester": "^4.0.0"
+  },
+  "private": true
+}
