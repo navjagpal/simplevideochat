@@ -115,8 +115,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
                 return v.toString(16);
               });
-            this.vc = new VideoChat(guid, stream, this.$.database.db);
-            this.vc.onremotestream = function(id, remoteStream) {
+            this.vc = new VideoChatManager(guid, stream, this.$.database.db);
+            this.vc.onRemoteStreamAdded = function(id, remoteStream) {
               var video = document.createElement('video');
               this.remoteVideosMapping[id] = 'remoteVideo' +
                 Object.keys(this.remoteVideosMapping).length;
@@ -125,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               video.play();
               this.$.remoteVideos.appendChild(video);
             }.bind(this);
-            this.vc.onremotestreamremoved = function(id) {
+            this.vc.onRemoteStreamRemoved = function(id) {
               var video = this.$$('#' + this.remoteVideosMapping[id]);
               video.parentNode.removeChild(video);
             }.bind(this);
