@@ -96,6 +96,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
       is: 'my-app',
       ready: function() {
+				// If we don't have a room name, pickup one by random.
+				if (this.getParameterByName('room') == null) {
+					window.location.href = '/?room=' + this.getGUID();	
+				}
         this.remoteVideosMapping = {};
         this.$.auth.auth.onAuthStateChanged(function(user) {
           if (user) {
@@ -105,17 +109,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }.bind(this));
       },
+      getParameterByName: function(name) {
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        		results = regex.exec(window.location.href);
+				if (!results) return null;
+				if (!results[2]) return '';
+				return decodeURIComponent(results[2].replace(/\+/g, " ")); 
+      },
+			getGUID: function() {
+				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+					function(c) {
+						var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
+						return v.toString(16);
+					});
+			},
       startVideoChat: function() {
         navigator.mediaDevices.getUserMedia({ "audio": true, "video": true }).
           then(function(stream) {
             this.$.selfView.srcObject = stream;
             this.$.selfView.play();
-            var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
-              function(c) {
-                var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
-                return v.toString(16);
-              });
-            this.vc = new VideoChatManager(guid, stream, this.$.database.db);
+            var guid = this.getGUID();
+            this.vc = new VideoChatManager(
+							guid, this.getParameterByName('room'), stream, this.$.database.db);
             this.vc.onRemoteStreamAdded = function(id, remoteStream) {
               var video = document.createElement('video');
               this.remoteVideosMapping[id] = 'remoteVideo' +
