@@ -20,6 +20,8 @@ objects.
 # Demo Web App
 I've included a web app built using Polymer. You can check out the live demo here: https://simplevideochatdemo.firebaseapp.com/
 
-Right now, everyone ends up in the same room! The app supports multiple peers, so you might meet some strangers this way.
-I will, eventually (maybe?), update the demo so that it puts people in different rooms and require you to share a URL
-to invite people to your room.
+You will end up in a random room, and it's unlikely there will be anyone else in the same room. That's because
+the room IDs for the demo app are long randomly generated strings. Just copy the URL and share with
+a friend over IM or email, or open in a new tab on the same machine. You can also just replace
+the GET parameter to something easier to remember or share, but you run the risk of getting in the same
+room as a stranger.
